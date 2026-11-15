@@ -1,0 +1,17 @@
+MÚSICA DEL JUEGO
+================
+
+Pon aquí archivos .mp3 con EXACTAMENTE estos nombres y el juego los usará solo
+(en bucle). Si un archivo no está, suena la música 8 bits propia del juego.
+
+  inicio.mp3    -> portada (algo tranquilo, de misterio)
+  kanto.mp3     -> casos de Pokémon
+  simpson.mp3   -> casos de Los Simpson
+  office.mp3    -> casos de The Office
+  dbz.mp3       -> casos de Dragon Ball Z
+
+Consejos:
+- Que duren 1-3 minutos y suenen bien en bucle. Mejor versiones instrumentales.
+- Usa solo música que tengas derecho a usar. Para jugar en tu computador está bien;
+  si publicas el juego en internet, esos archivos quedan descargables por cualquiera.
+- Después de agregar o cambiar un archivo, recarga la página (Ctrl+F5).
