@@ -14,7 +14,7 @@ uno() {
   [ -f "$f" ] && echo "ok   $t $n (semilla $s)" || echo "FALLA $t $n (semilla $s)"
 }
 export -f uno archivo
-for s in 0 11 22 33 44; do
+for s in 0 11 22 33 44 55 66 77 88 99 111 122; do
   pend=$(trabajos | while read t n; do [ -f "herramientas/tmp/.hecho-$t-$n" ] || echo "$t $n"; done)
   [ -z "$pend" ] && break
   echo "== ronda semilla $s: $(echo "$pend" | wc -l) casos =="

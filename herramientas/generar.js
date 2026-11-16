@@ -242,7 +242,7 @@ function generar(spec) {
   rnd = rng(1000 + spec.numero * 77 + (+process.env.SEMILLA || 0) * 7919 + (spec.tema ? spec.tema.length * 131 + spec.tema.charCodeAt(0) * 17 : 0));
   const buenos = [], est = { noUnico: 0, variedad: 0, regalo: 0, noLogico: 0, victima: 0 };
   const t0 = Date.now(), tol = spec.sondeos <= 2 ? 0 : spec.sondeos <= 5 ? 1 : 4;
-  for (let a = 0; a < 4000 && buenos.length < 30 && Date.now() - t0 < (process.env.TIEMPO ? +process.env.TIEMPO * 1000 : spec.size >= 8 ? 240000 : 90000) && !(buenos.length >= (spec.size >= 8 ? 1 : 4) && buenos.some((b) => Math.abs(b.sondeos - spec.sondeos) <= tol)); a++) {
+  for (let a = 0; a < 4000 && buenos.length < 30 && Date.now() - t0 < (process.env.TIEMPO ? +process.env.TIEMPO * 1000 : spec.size >= 8 ? 240000 : 90000) && !(spec.rango ? buenos.length >= 1 : buenos.length >= (spec.size >= 8 ? 1 : 4) && buenos.some((b) => Math.abs(b.sondeos - spec.sondeos) <= tol)); a++) {
     const base = construirBase(spec);
     const caso = { size: spec.size, ...base, personajes: [] };
     const sol = solucionAzar(caso, spec);
@@ -279,6 +279,9 @@ function generar(spec) {
       if (!lg.ok) { est.noLogico++; continue; }
       if (lg.pasos[lg.pasos.length - 1].id !== spec.elenco[0]) { est.victima++; continue; }
       if (lg.sondeos < (+process.env.MINS || 0)) { est.facil = (est.facil || 0) + 1; continue; }
+      // curva de dificultad: cada caso exige un número de hipótesis dentro de su rango (sube del 1 al 5)
+      const rango = process.env.RANGO ? process.env.RANGO.split(',').map(Number) : spec.rango;   // RANGO=min,max lo cambia por esta vez
+      if (rango && (lg.sondeos < rango[0] || lg.sondeos > rango[1])) { est.rango = (est.rango || 0) + 1; continue; }
       buenos.push({ caso: JSON.parse(JSON.stringify(caso)), sol, sondeos: lg.sondeos, pasos: lg.pasos.length });
       break;
     }

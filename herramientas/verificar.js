@@ -123,6 +123,10 @@ for (const t of temas) {
   const l = CASOS.filter((c) => c.tema === t).sort((a, b) => a.numero - b.numero);
   if (l.length !== 5) { todoOk = false; console.log(`  ✗ mundo ${t}: tiene ${l.length} casos (deben ser 5)`); }
   if (l.some((c, i) => i && (c.dificultad < l[i - 1].dificultad || c.size < l[i - 1].size))) { todoOk = false; console.log(`  ✗ mundo ${t}: la dificultad baja de un caso al siguiente`); }
+  const hip = l.map((c) => K.resolverLogico(c).sondeos);
+  // curva: nunca baja de un caso al siguiente (además el tablero crece) y el caso 5 es el más exigente del mundo
+  if (hip.some((h, i) => i && h < hip[i - 1]) || hip.slice(0, -1).some((h) => h >= hip[hip.length - 1])) { todoOk = false; console.log(`  ✗ mundo ${t}: la dificultad no sube del caso 1 al 5 (${hip.join(', ')})`); }
+  else console.log(`  mundo ${t}: hipótesis por caso ${hip.join(' → ')}`);
 }
 console.log(`\nMundos: ${temas.join(', ')} · ${CASOS.length} casos · ${avisos} avisos`);
 console.log(todoOk ? 'AUDITORÍA OK: todos los casos tienen solución única, coartadas coherentes y se resuelven siguiendo las pistas.' : 'HAY CASOS CON PROBLEMAS.');
