@@ -238,21 +238,6 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 }
 
 .lcd h3 #selNom{font:inherit;color:var(--oro);flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lcd h3 .tirador{display:none}
-/* celular: tablero arriba, coartadas en una pestaña deslizable abajo */
-@media (max-width:700px){
-  #juego{padding-bottom:150px}
-  .lado{position:fixed;left:0;right:0;bottom:0;z-index:30;max-height:none;padding:0 8px calc(8px + env(safe-area-inset-bottom));
-    background:rgba(14,11,32,.97);border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.6);backdrop-filter:blur(8px)}
-  .lado .lcd{max-height:0;overflow:hidden;padding:0 10px;transition:max-height .3s ease;border-radius:0 0 12px 12px}
-  .lado.abierta .lcd{max-height:58vh;overflow-y:auto;padding:0 10px 10px}
-  .lcd h3{position:sticky;top:0;z-index:2;margin:0 -10px 6px;padding:20px 12px 10px;cursor:pointer;background:inherit}
-  .lado:not(.abierta) .lcd{max-height:56px}
-  .lado:not(.abierta) .testigos,.lado:not(.abierta) .leyenda{visibility:hidden}
-  .lcd h3 .tirador{display:block;position:absolute;left:50%;top:7px;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:currentColor;opacity:.5}
-  .acusar{margin-top:8px;padding:12px}
-}
-
 /* ================= FLOTANTES ================= */
 .velo{position:fixed;inset:0;z-index:40;display:none;place-items:center;padding:16px;background:rgba(5,4,18,.78);backdrop-filter:blur(6px);overflow:auto}
 .velo.on{display:grid}
@@ -556,7 +541,7 @@ body[data-tema="lotr"]{background:radial-gradient(900px 500px at 50% 115%,rgba(2
       <div class="bisagra"></div>
       <section class="lado">
         <div class="lcd">
-          <h3 id="hoja"><span>▚ COARTADAS</span><b id="selNom"></b><em id="cuenta"></em><i class="tirador"></i></h3>
+          <h3 id="hoja"><span>▚ COARTADAS</span><b id="selNom"></b><em id="cuenta"></em></h3>
           <div class="testigos" id="testigos"></div>
           <div class="leyenda" id="leyenda"></div>
         </div>
@@ -573,15 +558,15 @@ body[data-tema="lotr"]{background:radial-gradient(900px 500px at 50% 115%,rgba(2
 <div class="iris" id="iris"></div>
 
 <!-- Pokémon (Kanto) está oculto por ahora. Para volver a mostrarlo, descomenta esta línea y su entrada en MUNDOS:
-<script src="casos.js?v=12"></script> -->
-<script src="casos-office.js?v=12"></script>
-<script src="casos-dbz.js?v=12"></script>
-<script src="casos-hxh.js?v=12"></script>
-<script src="casos-simpson.js?v=12"></script>
-<script src="casos-lotr.js?v=12"></script>
-<script src="motor.js?v=12"></script>
-<script src="arte.js?v=12"></script>
-<script src="mundos.js?v=12"></script>
+<script src="casos.js?v=13"></script> -->
+<script src="casos-office.js?v=13"></script>
+<script src="casos-dbz.js?v=13"></script>
+<script src="casos-hxh.js?v=13"></script>
+<script src="casos-simpson.js?v=13"></script>
+<script src="casos-lotr.js?v=13"></script>
+<script src="motor.js?v=13"></script>
+<script src="arte.js?v=13"></script>
+<script src="mundos.js?v=13"></script>
 <script>
 (() => {
 const K = window.COARTADA, A = window.COARTADA_ARTE;
@@ -642,7 +627,7 @@ const S = {
 };
 
 /* ---------- Música ----------
-   1) Si existe musica/<tema>.mp3 (inicio, kanto, simpson, office, dbz) se reproduce ese archivo en bucle.
+   1) Si existe musica/<tema>.mp3 (o musica/<tema>/caso-N.mp3) se reproduce ese archivo en bucle. La portada no tiene música.
    2) Si no existe, suena una pieza chiptune de composición propia. */
 const Musica = (() => {
   const SEMI = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
@@ -718,32 +703,6 @@ const Musica = (() => {
       tSig += dur; paso++;
     }
   }
-  /* Portada: ambiente suave y generativo (pads lentos + notas sueltas con eco), pensado para escucharse de fondo sin cansar */
-  const AMB = { acordes: [['A2', 'E3', 'C4', 'G4'], ['F2', 'C3', 'A3', 'E4'], ['C3', 'G3', 'E4', 'B4'], ['G2', 'D3', 'B3', 'F#4']], notas: ['A4', 'C5', 'D5', 'E5', 'G5', 'A5', 'E4', 'G4'] };
-  let ambT = 0, ambI = 0, ambN = 0;
-  function nota(f, t, ataque, dur, tipo, v, destino) {
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = tipo; o.frequency.setValueAtTime(f, t);
-    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v, t + ataque); g.gain.setTargetAtTime(0.0001, t + dur - ataque, dur / 4);
-    o.connect(g).connect(destino); o.start(t); o.stop(t + dur * 1.8);
-  }
-  function ambiente() {
-    const filtro = ctx.createBiquadFilter(); filtro.type = 'lowpass'; filtro.frequency.value = 1500; filtro.connect(nodo);
-    const eco = ctx.createDelay(1); eco.delayTime.value = .48; const fb = ctx.createGain(); fb.gain.value = .38;
-    eco.connect(fb).connect(eco); eco.connect(filtro);
-    const entrada = ctx.createGain(); entrada.connect(filtro); entrada.connect(eco);
-    ambT = ctx.currentTime + .1; ambI = 0; ambN = 0;
-    const paso = () => {
-      if (!nodo) return;
-      while (ambT < ctx.currentTime + .6) {
-        const ac = AMB.acordes[Math.floor(ambI / 12) % AMB.acordes.length];
-        if (ambI % 12 === 0) ac.forEach((n, i) => { nota(hz(n), ambT, 2.2, 9, 'sine', i ? .022 : .04, filtro); nota(hz(n) * 1.004, ambT, 2.6, 9, 'sine', .012, filtro); });
-        if (ambI % 2 === 0 && Math.random() < .5) { const f = hz(AMB.notas[(ambN = (ambN + 1 + Math.floor(Math.random() * 3)) % AMB.notas.length)]); nota(f, ambT, .02, 2.6, 'triangle', .035, entrada); nota(f * 2, ambT, .02, 1.6, 'sine', .008, entrada); }
-        ambT += .75; ambI++;
-      }
-    };
-    timer = setInterval(paso, 120); paso();
-  }
   function parar() {
     pedido++;
     clearInterval(timer); timer = null;
@@ -758,11 +717,10 @@ const Musica = (() => {
     if (yo !== pedido || !store.mus) return;   // cambió algo mientras cargaba
     if (arch) { el = arch; el.volume = .6 * store.vol; try { el.currentTime = 0; await el.play(); } catch (e) { el = null; } if (el) return; }
     nodo = ctx.createGain(); nodo.gain.value = 1; nodo.connect(busMus);
-    if (actual === 'inicio') return ambiente();
     const T = TEMAS[actual] || TEMAS[actual.split('/')[0]] || TEMAS.kanto; datos = { bpm: T.bpm, suave: !!T.suave, lead: voz(T.lead), acordes: T.acordes };
     paso = 0; tSig = ctx.currentTime + .08; timer = setInterval(agenda, 60); agenda();
   }
-  return { sonar, parar, refrescar: () => sonar(null), sonando: () => !!timer || !!el, volumen: () => { if (el) el.volume = .6 * store.vol; }, get actual() { return actual; } };
+  return { sonar, parar, silencio: () => { actual = null; parar(); }, refrescar: () => sonar(null), sonando: () => !!timer || !!el, volumen: () => { if (el) el.volume = .6 * store.vol; }, get actual() { return actual; } };
 })();
 // interruptores: cortan al instante (no esperan a que termine la nota)
 function alternarMusica() { store.mus = !store.mus; persistir(); pintaAudio(); audio(); aplicarVolumen(); if (store.mus) Musica.refrescar(); else Musica.parar(); }
@@ -836,7 +794,7 @@ function transicion(fn) {
   setTimeout(() => { fn(); window.scrollTo(0, 0); ir.className = 'iris abre'; }, 520);
 }
 function mostrar(id) { document.querySelectorAll('.pantalla').forEach((p) => p.classList.toggle('on', p.id === id)); }
-function irPortada() { clearInterval(tick); persistir(); cerrarVelo(); cerrarPista(); cerrarPicker(); caso = null; delete document.body.dataset.tema; mostrar('home'); portada(); Musica.sonar('inicio'); }
+function irPortada() { clearInterval(tick); persistir(); cerrarVelo(); cerrarPista(); cerrarPicker(); caso = null; delete document.body.dataset.tema; mostrar('home'); portada(); Musica.silencio(); }
 
 /* ---------- Juego ---------- */
 let caso = null, st = null, tick = null, sel = null, hist = [], ini = {}, pistas = [], pistaIdx = 0;
@@ -890,7 +848,7 @@ function construirTestigos() {
   for (const p of caso.personajes) {
     const b = el('button', 'tes', `${ficha(p.id)}<div><strong style="--c:${pj(p.id).color}"><i>${ini[p.id]}</i>${pj(p.id).nombre.toUpperCase()} ${p.victima ? '<u>VÍCTIMA</u>' : ''}</strong><p>${K.textoPista(caso, p)}</p></div>`);
     b.dataset.id = p.id;
-    b.onclick = () => { if (st.fin) return; sel = sel === p.id ? null : p.id; S.sel(); cerrarPicker(); if (sel) $('.lado').classList.remove('abierta'); pintar(); };
+    b.onclick = () => { if (st.fin) return; sel = sel === p.id ? null : p.id; S.sel(); cerrarPicker(); pintar(); };
     w.appendChild(b);
   }
 }
@@ -1113,8 +1071,6 @@ function confeti() {
 
 /* ---------- Botones ---------- */
 $('#bAcusar').onclick = acusar;
-// celular: la lista de coartadas es una pestaña que se abre y cierra tocando su encabezado
-$('#hoja').onclick = () => { if (matchMedia('(max-width:700px)').matches) { S.sel(); $('.lado').classList.toggle('abierta'); } };
 $('#bDeshacer').onclick = () => { if (st.fin || !hist.length) return S.no(); const h = JSON.parse(hist.pop()); st.pos = h.pos; st.marcas = h.marcas; st.notas = h.notas; sel = null; S.quita(); cerrarPicker(); pintar(); };
 $('#bReiniciar').onclick = () => confirmar('¿Reiniciar el caso?', 'Se borrará <b>todo lo guardado de este caso</b>: fichas, marcas, notas, tiempo, pistas vistas y resultado.', 'Sí, reiniciar', reiniciar);
 $('#bReglas').onclick = () => reglas(false);
@@ -1152,7 +1108,7 @@ addEventListener('beforeunload', persistir);
   addEventListener('resize', tam); tam(); requestAnimationFrame(paso);
 })();
 
-pintaAudio(); portada(); Musica.sonar('inicio');
+pintaAudio(); portada(); Musica.silencio();
 window.__coartada = { abrir: (n) => abrirCaso(K.CASOS[n || 0]), estado: () => st, caso: () => caso, pistas: () => pistas, musica: Musica };
 })();
 </script>
