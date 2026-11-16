@@ -9,6 +9,8 @@ Pon aquí archivos .mp3 con EXACTAMENTE estos nombres y el juego los usará solo
   simpson.mp3   -> casos de Los Simpson
   office.mp3    -> casos de The Office
   dbz.mp3       -> casos de Dragon Ball Z
+  hxh.mp3       -> casos de Hunter × Hunter
+  lotr.mp3      -> casos de El Señor de los Anillos
 
 Consejos:
 - Que duren 1-3 minutos y suenen bien en bucle. Mejor versiones instrumentales.

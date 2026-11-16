@@ -207,10 +207,11 @@ function candidatas(caso, spec, sol, id) {
   const junto = [...new Set(caso.objs.filter((o) => Math.abs(o.r - r) + Math.abs(o.c - c) === 1 && caso.rooms[o.r][o.c] === sala).map((o) => o.t))];
   for (const t of junto) { add('junto', { tipo: 'junto', obj: t }); add('todas', { tipo: 'todas', de: [{ tipo: 'sala', sala }, { tipo: 'junto', obj: t }] }); }
   const otras = Object.keys(caso.salas).filter((s) => s !== sala);
-  for (const o2 of baraja(otras).slice(0, 3)) {
-    const dos = [sala, o2].sort();
-    add('salaO', { tipo: 'salaO', salas: dos });
-    for (const t of junto) add('combo', { tipo: 'todas', de: [{ tipo: 'salaO', salas: dos }, { tipo: 'junto', obj: t }] });
+  for (const o2 of baraja(otras).slice(0, 3)) add('salaO', { tipo: 'salaO', salas: [sala, o2].sort() });
+  for (const t of junto) {
+    // solo salas que también tengan ese objeto al alcance (si no, la coartada sería engañosa)
+    const conObj = baraja(otras).filter((o2) => K.pistaCoherente(caso, { tipo: 'todas', de: [{ tipo: 'sala', sala: o2 }, { tipo: 'junto', obj: t }] }));
+    for (const o2 of conObj.slice(0, 3)) add('combo', { tipo: 'todas', de: [{ tipo: 'salaO', salas: [sala, o2].sort() }, { tipo: 'junto', obj: t }] });
   }
   if (esV) return out;
   const enSala = spec.elenco.filter((x) => x !== id && caso.rooms[sol[x][0]][sol[x][1]] === sala);
@@ -226,7 +227,8 @@ function candidatas(caso, spec, sol, id) {
   add('linea', { tipo: 'fila', n: r }); add('linea', { tipo: 'columna', n: c });
   // fuera las coartadas que regalan la casilla exacta
   const L = K.libres(caso);
-  return out.filter((x) => L.filter((rc) => K.partes(x.pista).every((q) => !K.esUnaria(q) || K.evalPista(caso, q, id, { [id]: rc }))).length >= 2);
+  // y fuera las incoherentes ("en A o en B, al lado de X" con X ausente en B)
+  return out.filter((x) => K.pistaCoherente(caso, x.pista) && L.filter((rc) => K.partes(x.pista).every((q) => !K.esUnaria(q) || K.evalPista(caso, q, id, { [id]: rc }))).length >= 2);
 }
 function sortea(lista) {
   const clases = [...new Set(lista.map((x) => x.clase))];

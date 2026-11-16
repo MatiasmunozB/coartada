@@ -21,6 +21,8 @@
     dispensador: { nombre: 'Dispensador de agua', de: 'del dispensador de agua', pisable: false },
     capsula: { nombre: 'Nave cápsula', de: 'de una nave cápsula', pisable: false },
     esfera: { nombre: 'Esfera del dragón', de: 'de una esfera del dragón', pisable: false },
+    fogata: { nombre: 'Fogata', de: 'de una fogata', pisable: false },
+    cofre: { nombre: 'Cofre', de: 'de un cofre', pisable: false },
     nube: { nombre: 'Nube voladora', de: 'de la nube voladora', sobre: 'sobre la nube voladora', pisable: true },
     colchoneta: { nombre: 'Colchoneta', de: 'de una colchoneta', sobre: 'sobre una colchoneta', pisable: true },
     agua: { nombre: 'Agua', de: 'del agua', sobre: 'dentro del agua', pisable: true },
@@ -68,6 +70,20 @@
     roshi: { nombre: 'Roshi', color: '#e8a03c' }, yamcha: { nombre: 'Yamcha', color: '#d8703c' }, satan: { nombre: 'Satán', color: '#7a3a1a' },
     trunks: { nombre: 'Trunks', color: '#b8a0e0' }, a18: { nombre: 'N.º 18', color: '#5ab0e0' }, freezer: { nombre: 'Freezer', color: '#b070d0' },
     cell: { nombre: 'Cell', color: '#7ab04a' }, milk: { nombre: 'Milk', color: '#c05ab0' }, buu: { nombre: 'Buu', color: '#f4a6c0' },
+    // Hunter × Hunter
+    gon: { nombre: 'Gon', color: '#3fa55a' }, killua: { nombre: 'Killua', color: '#9ab8e8' }, kurapika: { nombre: 'Kurapika', color: '#5a8ad8' },
+    leorio: { nombre: 'Leorio', color: '#2a3a6a' }, hisoka: { nombre: 'Hisoka', color: '#e8508a' }, illumi: { nombre: 'Illumi', color: '#6a5a8a' },
+    netero: { nombre: 'Netero', color: '#e8e0c8' }, bisky: { nombre: 'Bisky', color: '#f2c230' }, chrollo: { nombre: 'Chrollo', color: '#3a3a4a' },
+    tonpa: { nombre: 'Tonpa', color: '#c8905a' }, wing: { nombre: 'Wing', color: '#8a7ab0' }, zushi: { nombre: 'Zushi', color: '#e8603c' },
+    meruem: { nombre: 'Meruem', color: '#5ab08a' }, komugi: { nombre: 'Komugi', color: '#b0c8e8' }, alluka: { nombre: 'Alluka', color: '#f08fb0' },
+    machi: { nombre: 'Machi', color: '#d870c0' }, knuckle: { nombre: 'Knuckle', color: '#7a6a5a' }, ging: { nombre: 'Ging', color: '#c0603a' },
+    // Tierra Media
+    frodo: { nombre: 'Frodo', color: '#5a8a4a' }, sam: { nombre: 'Sam', color: '#c8a050' }, gandalf: { nombre: 'Gandalf', color: '#a8a8b8' },
+    aragorn: { nombre: 'Aragorn', color: '#5a6a4a' }, legolas: { nombre: 'Legolas', color: '#8ac85a' }, gimli: { nombre: 'Gimli', color: '#c0603a' },
+    boromir: { nombre: 'Boromir', color: '#b0302a' }, merry: { nombre: 'Merry', color: '#e8a03c' }, pippin: { nombre: 'Pippin', color: '#6ab0d8' },
+    gollum: { nombre: 'Gollum', color: '#b8c098' }, bilbo: { nombre: 'Bilbo', color: '#d8b070' }, elrond: { nombre: 'Elrond', color: '#8a5ab0' },
+    theoden: { nombre: 'Théoden', color: '#c9a227' }, eowyn: { nombre: 'Éowyn', color: '#e8e0b0' }, saruman: { nombre: 'Saruman', color: '#f4f4f4' },
+    barbol: { nombre: 'Bárbol', color: '#7a5a3a' },
   };
   const nom = (id) => PERSONAJES[id].nombre;
   const LETRAS = 'ABCDEFGHIJKL';
@@ -200,22 +216,33 @@
     const pista = {}; for (const p of P) pista[p.id] = partes(p.pista);
     const cu = candidatosUnarios(caso), totalLibres = libres(caso).length;
     const cand = {}; for (const id of ids) cand[id] = new Set(cu[id].map(([r, c]) => r * n + c));
-    const razones = {}, pasos = [], fijo = new Set();
+    const razones = {}, pasos = [], fijo = new Set(), elim = {};
     let sondeos = 0;
     const nota = (id, r) => { (razones[id] = razones[id] || []); if (!razones[id].includes(r)) razones[id].push(r); };
     for (const id of ids) if (cand[id].size < totalLibres) nota(id, `su coartada solo deja ${cand[id].size} ${cand[id].size === 1 ? 'casilla posible' : 'casillas posibles'}`);
+    const lista = (s) => { const a = [...s].sort((x, y) => x - y).map((c) => celdaNombre(R(c), C(c))); return a.length <= 3 ? a.join(' o ') : a.length + ' casillas'; };
+    // por qué se descartó cada casilla, agrupado (para las pistas)
+    const descartes = (id, final) => {
+      const g = new Map();
+      for (const [r, c] of cu[id]) {
+        const i = r * n + c; if (i === final) continue;
+        const why = (elim[id] && elim[id][i]) || 'queda descartada por las demás';
+        if (!g.has(why)) g.set(why, []); g.get(why).push(celdaNombre(r, c));
+      }
+      return [...g].map(([razon, celdas]) => ({ razon, celdas }));
+    };
     const registrar = () => {
       for (const id of ids) if (cand[id].size === 1 && !fijo.has(id)) {
         fijo.add(id); const c = [...cand[id]][0];
-        pasos.push({ id, r: R(c), c: C(c), razones: (razones[id] || []).slice(-4) });
+        pasos.push({ id, r: R(c), c: C(c), razones: (razones[id] || []).slice(-4), inicial: cu[id].map(([a, b]) => celdaNombre(a, b)), descartes: descartes(id, c) });
       }
     };
     function propagar(cd, anota, alIterar) {
       let cambio = true;
       const quitar = (id, pred, razon) => {
         let q = false;
-        for (const c of [...cd[id]]) if (pred(c)) { cd[id].delete(c); q = true; }
-        if (q) { cambio = true; if (anota) anota(id, razon); }
+        for (const c of [...cd[id]]) if (pred(c)) { cd[id].delete(c); q = true; if (anota) { elim[id] = elim[id] || {}; if (!elim[id][c]) elim[id][c] = typeof razon === 'function' ? razon(c) : razon; } }
+        if (q) { cambio = true; if (anota && typeof razon !== 'function') anota(id, razon); }
       };
       while (cambio) {
         cambio = false;
@@ -223,29 +250,30 @@
         for (const id of ids) if (!cd[id].size) return { ok: false, quien: id };
         for (const id of ids) {
           const fs = new Set([...cd[id]].map(R)), cs = new Set([...cd[id]].map(C));
-          if (fs.size === 1) { const f = [...fs][0]; for (const o of ids) if (o !== id) quitar(o, (c) => R(c) === f, `la fila ${f + 1} es de ${nom(id)}`); }
-          if (cs.size === 1) { const k = [...cs][0]; for (const o of ids) if (o !== id) quitar(o, (c) => C(c) === k, `la columna ${LETRAS[k]} es de ${nom(id)}`); }
+          const quien = cd[id].size === 1 ? `ya es de ${nom(id)} (${lista(cd[id])})` : `es de ${nom(id)}: solo puede estar en ${lista(cd[id])}`;
+          if (fs.size === 1) { const f = [...fs][0]; for (const o of ids) if (o !== id) quitar(o, (c) => R(c) === f, `la fila ${f + 1} ${quien}`); }
+          if (cs.size === 1) { const k = [...cs][0]; for (const o of ids) if (o !== id) quitar(o, (c) => C(c) === k, `la columna ${LETRAS[k]} ${quien}`); }
         }
         for (let f = 0; f < n; f++) {
           const q = ids.filter((id) => [...cd[id]].some((c) => R(c) === f));
           if (!q.length) return { ok: false, fila: f };
-          if (q.length === 1) quitar(q[0], (c) => R(c) !== f, `es el único que puede ocupar la fila ${f + 1}`);
+          if (q.length === 1) quitar(q[0], (c) => R(c) !== f, `la fila ${f + 1} necesita a alguien y nadie más puede ir ahí, así que ${nom(q[0])} tiene que estar en la fila ${f + 1}`);
           const q2 = ids.filter((id) => [...cd[id]].some((c) => C(c) === f));
           if (!q2.length) return { ok: false, col: f };
-          if (q2.length === 1) quitar(q2[0], (c) => C(c) !== f, `es el único que puede ocupar la columna ${LETRAS[f]}`);
+          if (q2.length === 1) quitar(q2[0], (c) => C(c) !== f, `la columna ${LETRAS[f]} necesita a alguien y nadie más puede ir ahí, así que ${nom(q2[0])} tiene que estar en la columna ${LETRAS[f]}`);
         }
         for (const id of ids) for (const q of pista[id]) {
           if (q.con) {
             const y = q.con;
             const par = (c, d) => R(d) !== R(c) && C(d) !== C(c) && evalPista(caso, q, id, { [id]: [R(c), C(c)], [y]: [R(d), C(d)] });
-            quitar(id, (c) => ![...cd[y]].some((d) => par(c, d)), `su coartada depende de dónde puede estar ${nom(y)}`);
-            quitar(y, (d) => ![...cd[id]].some((c) => par(c, d)), `la coartada de ${nom(id)} lo condiciona`);
+            quitar(id, (c) => ![...cd[y]].some((d) => par(c, d)), () => `ahí no cumpliría su coartada con ninguna casilla que le queda a ${nom(y)} (${lista(cd[y])})`);
+            quitar(y, (d) => ![...cd[id]].some((c) => par(c, d)), () => `si estuviera ahí, ${nom(id)} no podría cumplir su coartada (a ${nom(id)} le queda ${lista(cd[id])})`);
           } else if (q.tipo === 'acompanado') {
-            quitar(id, (c) => !ids.some((o) => o !== id && [...cd[o]].some((d) => sala(d) === sala(c) && R(d) !== R(c) && C(d) !== C(c))), 'en las otras habitaciones no tendría compañía');
+            quitar(id, (c) => !ids.some((o) => o !== id && [...cd[o]].some((d) => sala(d) === sala(c) && R(d) !== R(c) && C(d) !== C(c))), 'ahí no tendría compañía: nadie más puede estar en esa habitación');
           } else if (q.tipo === 'solo') {
-            quitar(id, (c) => ids.some((o) => o !== id && [...cd[o]].every((d) => sala(d) === sala(c))), 'esa habitación ya tiene a alguien seguro');
+            quitar(id, (c) => ids.some((o) => o !== id && [...cd[o]].every((d) => sala(d) === sala(c))), (c) => `${caso.salas[sala(c)].nombre} ya tiene a alguien seguro, y no compartía habitación`);
             const ss = new Set([...cd[id]].map(sala));
-            if (ss.size === 1) { const s = [...ss][0]; for (const o of ids) if (o !== id) quitar(o, (d) => sala(d) === s, `${nom(id)} no compartía su habitación con nadie`); }
+            if (ss.size === 1) { const s = [...ss][0]; for (const o of ids) if (o !== id) quitar(o, (d) => sala(d) === s, `${nom(id)} estaba en ${caso.salas[s].nombre} sin nadie más`); }
           }
         }
       }
@@ -263,7 +291,9 @@
         const r = propagar(cl);
         if (!r.ok) {
           cand[id].delete(c); sondeos++;
-          nota(id, `no puede estar en ${celdaNombre(R(c), C(c))}: ${r.quien ? nom(r.quien) + ' se quedaría sin casilla posible' : 'una fila o columna quedaría vacía'}`);
+          const porque = r.quien ? `${nom(r.quien)} se quedaría sin ninguna casilla posible` : r.fila != null ? `la fila ${r.fila + 1} quedaría sin nadie` : `la columna ${LETRAS[r.col]} quedaría sin nadie`;
+          elim[id] = elim[id] || {}; elim[id][c] = `prueba ponerlo ahí: siguiendo las reglas, ${porque}`;
+          nota(id, `no puede estar en ${celdaNombre(R(c), C(c))}: ${porque}`);
           res = propagar(cand, nota, registrar); registrar();
           avance = res.ok; break busca;
         }
@@ -273,6 +303,45 @@
     for (const id of ids) { if (cand[id].size !== 1) completo = false; else { const c = [...cand[id]][0]; pos[id] = [R(c), C(c)]; } }
     return { ok: completo && validar(caso, pos).ok, pasos, sondeos, pos };
   }
+
+  /* Una coartada es "coherente" si no menciona nada imposible:
+     - cada habitación que nombra (sala / "X o Y") tiene al menos una casilla libre que cumple el resto de la coartada
+       (p. ej. "en la Cocina o en Ventas, al lado de una mesa" exige una mesa utilizable EN la Cocina y EN Ventas)
+     - cada objeto que nombra existe en el mapa y la coartada se puede cumplir en alguna casilla */
+  function pistaCoherente(caso, pista) {
+    const ps = partes(pista), L = libres(caso);
+    const cumple = (r, c, salvo) => ps.every((x) => x === salvo || !esUnaria(x) || x.tipo === 'libre' || evalPista(caso, x, '_', { _: [r, c] }));
+    for (const q of ps) {
+      if (q.obj && !caso.objs.some((o) => o.t === q.obj)) return false;
+      const salas = q.tipo === 'salaO' ? q.salas : q.tipo === 'sala' ? [q.sala] : null;
+      if (salas) for (const s of salas) if (!L.some(([r, c]) => caso.rooms[r][c] === s && cumple(r, c, q))) return false;
+    }
+    return L.some(([r, c]) => cumple(r, c, null));
+  }
+
+  /* Dónde va el cartel con el nombre de cada habitación: el tramo horizontal (hasta 3 casillas) de la habitación
+     con más ancho y menos objetos debajo. Si solo cabe en 1 casilla, el cartel usa 2 de ancho para no cortarse. */
+  function etiquetas(caso) {
+    const n = caso.size, out = {};
+    for (const s of Object.keys(caso.salas)) {
+      let mejor = null;
+      for (let r = 0; r < n; r++) for (let a = 0; a < n; a++) {
+        if (caso.rooms[r][a] !== s) continue;
+        for (let L = 1; L <= 3 && a + L <= n && caso.rooms[r][a + L - 1] === s; L++) {
+          let objs = 0; for (let k = a; k < a + L; k++) if (objAt(caso, r, k)) objs++;
+          const score = Math.min(L, 2) * 10 + L - objs * 3;
+          if (!mejor || score > mejor.score) mejor = { r, c: a, len: L, score };
+        }
+      }
+      const nombre = caso.salas[s].nombre.toUpperCase();
+      let { r, c, len } = mejor;
+      if (len === 1) { len = 2; if (c === n - 1) c--; }
+      out[s] = { r, c, len, palabra: Math.max(...nombre.split(/\s+/).map((w) => w.length)), total: nombre.length };
+    }
+    return out;
+  }
+  // tamaño de letra (px) que usa el cartel para un tamaño de casilla dado (mismo cálculo que el CSS del juego)
+  const letraEtiqueta = (e, cell) => Math.max(6, Math.min(cell * 0.105, (cell * e.len - 10) / (e.palabra * 0.78), ((cell * e.len - 10) * 2) / (e.total * 0.78)));
 
   // Iniciales únicas por caso: el prefijo más corto del nombre que no se repita
   function iniciales(caso) {
@@ -285,7 +354,7 @@
     return out;
   }
 
-  const api = { OBJ_INFO, PERSONAJES, LETRAS, nom, celdaNombre, objAt, bloqueada, roomAt, partes, esUnaria, evalPista, textoPista, validar, culpable, libres, soluciones, resolverLogico, iniciales };
+  const api = { OBJ_INFO, PERSONAJES, LETRAS, nom, celdaNombre, objAt, bloqueada, roomAt, partes, esUnaria, evalPista, textoPista, validar, culpable, libres, soluciones, resolverLogico, iniciales, pistaCoherente, etiquetas, letraEtiqueta };
   if (typeof window !== 'undefined') { api.CASOS = window.COARTADA_CASOS || []; window.COARTADA = api; }
   else module.exports = api;
 })(this);

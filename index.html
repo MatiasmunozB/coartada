@@ -6,7 +6,7 @@
 <title>COARTADA — Misterios de lógica</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;500;600;700&family=Bangers&family=Special+Elite&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;500;600;700&family=Bangers&family=Special+Elite&family=Cinzel:wght@600;800&family=Russo+One&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg0:#07061a; --bg1:#120f3a; --ink:#f4f1ff; --mut:#a9a4d6;
@@ -132,8 +132,10 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 .celda .muros{z-index:3}
 .celda .obj{z-index:2;padding:9%;filter:drop-shadow(0 3px 2px rgba(0,0,0,.35))}
 .celda .obj svg{width:100%;height:100%;display:block}
-.celda .eti{z-index:4;inset:auto auto 3px 50%;transform:translateX(-50%);font:700 max(7px,calc(var(--cell)*.105))/1 var(--txt);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;
-  background:rgba(20,16,44,.86);color:#fff;padding:3px 5px 2px;border-radius:4px}
+.etis{position:absolute;inset:0;display:grid;grid-template-columns:repeat(var(--n),var(--cell));grid-template-rows:repeat(var(--n),var(--cell));pointer-events:none;z-index:4}
+.etis .eti{align-self:end;justify-self:center;margin-bottom:3px;max-width:calc(100% - 6px);text-align:center;font-style:normal;
+  font:700 max(6px,min(calc(var(--cell)*.105),calc((var(--cell)*var(--l) - 10px)/(var(--w)*.78)),calc((var(--cell)*var(--l) - 10px)*2/(var(--t)*.78))))/1.08 var(--txt);
+  letter-spacing:.05em;text-transform:uppercase;background:rgba(20,16,44,.86);color:#fff;padding:3px 5px 2px;border-radius:4px;overflow-wrap:normal}
 .celda .x{z-index:4;display:grid;place-items:center;font:400 calc(var(--cell)*.3) var(--pix);color:#fff;text-shadow:2px 2px 0 rgba(20,16,44,.9);opacity:0;transform:scale(.3);transition:.14s}
 .celda.marca .x{opacity:.92;transform:none}
 .celda .vista{z-index:2;opacity:0;transition:opacity .25s;background:repeating-linear-gradient(135deg,rgba(18,14,40,.42) 0 3px,transparent 3px 9px)}
@@ -174,7 +176,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
   background:radial-gradient(circle at 34% 26%,#fff 0 6%,color-mix(in srgb,var(--c) 55%,#fff) 20%,var(--c) 62%,color-mix(in srgb,var(--c) 60%,#000) 100%);
   box-shadow:0 0 0 3px #fff,0 0 0 5px #1d1933,0 6px 10px rgba(0,0,0,.45)}
 .ficha svg{position:absolute;inset:9%;width:82%;height:82%}
-.celda .tok{z-index:4;display:grid;place-items:center}
+.celda .tok{z-index:5;display:grid;place-items:center}
 .celda .tok .ficha{width:72%;height:72%;animation:cae .38s cubic-bezier(.3,1.7,.5,1)}
 @keyframes cae{from{transform:translateY(-60%) scale(.3);opacity:0}}
 .celda.choque .ficha{box-shadow:0 0 0 3px #fff,0 0 0 6px #ff1f3d,0 0 18px 6px #ff1f3d;animation:tiembla .3s}
@@ -278,7 +280,8 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 .pista header button{width:34px;height:30px;border-radius:8px;background:#3a2500;color:#ffe066;font:700 15px var(--txt);display:grid;place-items:center}
 .pista header button:disabled{opacity:.3;cursor:default}
 .pista header .cerrar{background:#c2152b;color:#fff}
-.pista div{padding:12px 16px 14px;font-size:15.5px;line-height:1.42;min-height:64px}
+.pista div{padding:12px 16px 14px;font-size:15.5px;line-height:1.42;min-height:64px;max-height:min(46vh,340px);overflow-y:auto}
+.pista div small{display:block;margin-top:4px;font-size:13.5px;color:#d8d3f5}
 .pista div b{color:var(--oro)}
 .pista div ul{margin:6px 0 0;padding-left:18px;color:#d8d3f5;font-size:14.5px}
 
@@ -324,7 +327,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none
 body[data-tema="simpson"]{background:radial-gradient(ellipse 240px 70px at 15% 18%,#fff 0 60%,transparent 62%),radial-gradient(ellipse 300px 80px at 80% 9%,#fff 0 60%,transparent 62%),radial-gradient(ellipse 260px 70px at 62% 90%,rgba(255,255,255,.85) 0 60%,transparent 62%),linear-gradient(180deg,#4fb3f6,#9ad8ff);background-attachment:fixed}
 body[data-tema="office"]{background:repeating-linear-gradient(0deg,#b4bec8 0 20px,#a3aeb9 20px 24px);background-attachment:fixed}
 body[data-tema="dbz"]{background:radial-gradient(900px 500px at 50% 112%,#ff9a2e 0%,transparent 60%),radial-gradient(700px 500px at 0% 0%,#1f4fb0 0%,transparent 60%),linear-gradient(160deg,#0a1436,#1a0a2e);background-attachment:fixed}
-body[data-tema="simpson"] #cielo,body[data-tema="office"] #cielo{display:none}
+body[data-tema="simpson"] #cielo,body[data-tema="office"] #cielo,body[data-tema="lotr"] #cielo{display:none}
 
 /* --- Springfield: televisor con antenas + pizarra --- */
 .dex.t-simpson{--ko:"¡D'OH!";margin-top:50px;border-radius:34px;background:linear-gradient(175deg,#a377dc 0%,#7a4bb3 35%,#55308a 100%);
@@ -389,6 +392,60 @@ body[data-tema="simpson"] #cielo,body[data-tema="office"] #cielo{display:none}
 .t-dbz .tes{background:rgba(8,40,20,.74)}
 .t-dbz .reloj{background:#08301a}
 .t-dbz .dex-top .mini{box-shadow:inset 0 2px 0 rgba(255,255,255,.25),0 3px 0 #6b2400}
+
+/* pisos extra */
+.p-madera{background:repeating-linear-gradient(0deg,#c48a52 0 22%,#a86e3c 22% 25%),#c48a52}
+.p-tatami{background:linear-gradient(90deg,transparent 48%,#6b7a3a 48% 52%,transparent 52%) 0 0/100% 100%,repeating-linear-gradient(0deg,#cfd49a 0 3px,#c2c88a 3px 6px)}
+
+/* --- Hunter × Hunter: licencia de cazador --- */
+.m-hxh{background:linear-gradient(135deg,#1d3b2c,#10241b 55%,#07130d);color:#eaf6ee;box-shadow:0 30px 80px -20px rgba(30,160,90,.45), inset 0 0 0 2px #c9a227, inset 0 2px 0 rgba(255,255,255,.25), inset 0 -8px 0 rgba(0,0,0,.3)}
+.m-hxh::before{background:radial-gradient(circle,rgba(90,255,160,.22),transparent 65%)}
+.m-hxh h2{font:400 clamp(22px,3.8vw,38px)/1.05 'Russo One',var(--txt);letter-spacing:.03em;color:#ffe9a8;text-shadow:0 0 18px rgba(255,210,90,.45)}
+.m-hxh .lente,.t-hxh .lente{border-radius:12px;background:linear-gradient(145deg,#ffe9a8,#c9a227 60%,#8a6a1a);border-color:#10241b;box-shadow:0 0 0 3px #c9a227,0 0 26px rgba(255,210,90,.5);animation:none;display:grid;place-items:center}
+.m-hxh .lente::after,.t-hxh .lente::after{content:"H";font:400 .95em 'Russo One',var(--txt);color:#e3172f;text-shadow:1px 1px 0 #fff}
+body[data-tema="hxh"]{background:radial-gradient(800px 500px at 15% 10%,rgba(90,220,140,.28),transparent 60%),radial-gradient(700px 600px at 90% 100%,rgba(200,160,40,.22),transparent 60%),linear-gradient(160deg,#0c2418,#051009);background-attachment:fixed}
+.dex.t-hxh{--ko:"¡OSU!";border-radius:22px;background:linear-gradient(160deg,#24493a 0%,#13281e 45%,#0a1610 100%);
+  box-shadow:0 40px 100px -30px rgba(0,0,0,.9),0 0 0 3px #c9a227,0 0 0 7px #0a1610, inset 0 2px 0 rgba(255,255,255,.18), inset 0 -10px 0 rgba(0,0,0,.3)}
+.t-hxh .dex-top{border-bottom:2px solid #c9a227;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.t-hxh .dex-tit h1{font:400 clamp(15px,2vw,23px)/1.15 'Russo One',var(--txt);color:#ffe9a8;text-shadow:0 2px 0 #000}
+.t-hxh .dex-tit small{color:#9fd8b4;opacity:1}
+.t-hxh .marco{background:linear-gradient(180deg,#e8e4d4,#bdb69a);border-radius:12px;box-shadow:inset 0 0 0 2px #c9a227,0 4px 0 rgba(0,0,0,.35)}
+.t-hxh .marco::after{background:#3fa55a}
+.t-hxh .tablero{box-shadow:0 0 0 3px #10241b,0 0 40px rgba(90,255,160,.25)}
+.t-hxh .bisagra{background:linear-gradient(90deg,#0a1610,#c9a227 50%,#0a1610)}
+.t-hxh .lcd{--fosforo:#7dffb0;background:linear-gradient(180deg,#123222,#0a1d14);box-shadow:inset 0 0 0 2px #c9a227, inset 0 8px 30px rgba(0,0,0,.6),0 4px 0 rgba(255,255,255,.12)}
+.t-hxh .tes{background:rgba(255,255,255,.05);border:1px solid rgba(201,162,39,.35)}
+.t-hxh .tes p b{color:#ffe08a}
+.t-hxh .reloj{background:#07130d;color:#7dffb0;text-shadow:0 0 8px #7dffb0}
+.t-hxh .dex-top .mini{box-shadow:inset 0 2px 0 rgba(255,255,255,.25),0 3px 0 #000}
+
+/* --- Tierra Media: libro de cuero + mapa de pergamino --- */
+.m-lotr{background:radial-gradient(circle at 80% 20%,rgba(255,200,90,.18),transparent 55%),linear-gradient(135deg,#5a3a20,#3a2414 55%,#1f130a);color:#f4e6c4;box-shadow:0 30px 80px -20px rgba(200,140,40,.45), inset 0 0 0 3px #b8892a, inset 0 0 0 6px #3a2414, inset 0 0 0 7px #b8892a}
+.m-lotr::before{background:radial-gradient(circle,rgba(255,190,60,.25),transparent 65%)}
+.m-lotr h2{font:800 clamp(22px,3.8vw,38px)/1.05 'Cinzel',serif;letter-spacing:.06em;color:#ffd77a;text-shadow:0 0 16px rgba(255,170,40,.55),2px 2px 0 #1f130a}
+.m-lotr small{color:#e0c890}
+.m-lotr .lente,.t-lotr .lente{background:radial-gradient(circle,#1f130a 0 42%,transparent 44%),radial-gradient(circle at 35% 30%,#fff3b0,#e8b23a 45%,#8a5a12 80%);border-color:#ffd77a;box-shadow:0 0 0 2px #5a3a12,0 0 28px rgba(255,170,40,.75);animation:latido 3s infinite}
+body[data-tema="lotr"]{background:radial-gradient(900px 500px at 50% 115%,rgba(255,110,30,.35),transparent 60%),radial-gradient(600px 400px at 85% 5%,rgba(255,220,140,.18),transparent 60%),linear-gradient(170deg,#2a2236,#120d16);background-attachment:fixed}
+.dex.t-lotr{--ko:"¡AY!";border-radius:12px 22px 22px 12px;background:linear-gradient(175deg,#6a4426 0%,#4a2e18 45%,#2e1c0e 100%);
+  box-shadow:0 40px 100px -30px rgba(0,0,0,.9),0 0 0 3px #b8892a,-10px 0 0 #2e1c0e,-13px 0 0 #b8892a, inset 0 2px 0 rgba(255,255,255,.18), inset 0 -10px 0 rgba(0,0,0,.3)}
+.t-lotr .dex-top{border-bottom:2px solid #b8892a;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.t-lotr .dex-tit h1{font:800 clamp(15px,2vw,23px)/1.15 'Cinzel',serif;letter-spacing:.04em;color:#ffd77a;text-shadow:0 2px 0 #1f130a}
+.t-lotr .dex-tit small{color:#e0c890;opacity:1}
+.t-lotr .marco{background:radial-gradient(circle at 30% 20%,#f8ecc8,#e4cf98 60%,#c9ad6a);border-radius:6px 16px 6px 16px;box-shadow:inset 0 0 30px rgba(120,80,20,.45),0 4px 0 rgba(0,0,0,.35)}
+.t-lotr .marco::after{background:#b0302a}
+.t-lotr .coordC,.t-lotr .coordF,.t-lotr .norte{color:#5a3a12}
+.t-lotr .tablero{box-shadow:0 0 0 3px #3a2414,0 0 34px rgba(255,170,40,.3)}
+.t-lotr .bisagra{background:linear-gradient(90deg,#2e1c0e,#b8892a 50%,#2e1c0e)}
+.t-lotr .lcd{--fosforo:#ffd77a;background:radial-gradient(circle at 30% 10%,#f8ecc8,#e8d4a0 70%,#d4b878);box-shadow:inset 0 0 0 2px #b8892a, inset 0 0 26px rgba(120,80,20,.4),0 4px 0 rgba(0,0,0,.25)}
+.t-lotr .lcd h3{color:#6a2a12;text-shadow:none;font-family:'Cinzel',serif;font-weight:800;font-size:12px}
+.t-lotr .tes{background:rgba(255,255,255,.4);border:1px solid rgba(90,58,18,.35)}
+.t-lotr .tes strong{color:#3a2414}.t-lotr .tes p{color:#2a1a0a}.t-lotr .tes p b{color:#8a2a12}
+.t-lotr .tes:hover{background:rgba(255,255,255,.65)}
+.t-lotr .tes.sel{background:#fff8e4;border-color:#b0302a}
+.t-lotr .tes.puesto strong::after{color:#2f7a3a}
+.t-lotr .leyenda{color:#3a2414}.t-lotr .leyenda b{background:rgba(90,58,18,.15);color:#6a2a12}
+.t-lotr .reloj{background:#1f130a;color:#ffd77a;text-shadow:0 0 8px #ffb52e}
+.t-lotr .dex-top .mini{box-shadow:inset 0 2px 0 rgba(255,255,255,.25),0 3px 0 #1f130a}
 </style>
 </head>
 <body>
@@ -404,12 +461,6 @@ body[data-tema="simpson"] #cielo,body[data-tema="office"] #cielo{display:none}
   <h1 class="logo" id="logo" aria-label="Coartada"></h1>
   <p class="lema">Un tablero. Varios sospechosos. <b>Una sola verdad.</b><br>Ubica a cada uno según su coartada y descubre quién se quedó a solas con la víctima.</p>
   <div id="mundos"></div>
-  <section class="proximos">
-    <h3>PRÓXIMOS MUNDOS</h3>
-    <div>
-      <span>El Señor de los Anillos<small>PRÓXIMAMENTE</small></span><span>Hunter × Hunter<small>PRÓXIMAMENTE</small></span>
-    </div>
-  </section>
   <p class="pie">Juego de fans, sin fines de lucro, hecho para jugar entre amigos. Tu avance se guarda solo en este navegador.</p>
 </main>
 
@@ -456,12 +507,15 @@ body[data-tema="simpson"] #cielo,body[data-tema="office"] #cielo{display:none}
 <div class="picker" id="picker"></div>
 <div class="iris" id="iris"></div>
 
-<script src="casos.js?v=9"></script>
-<script src="casos-simpson.js?v=9"></script>
-<script src="casos-office.js?v=9"></script>
-<script src="casos-dbz.js?v=9"></script>
-<script src="motor.js?v=9"></script>
-<script src="arte.js?v=9"></script>
+<!-- Pokémon (Kanto) está oculto por ahora. Para volver a mostrarlo, descomenta esta línea y su entrada en MUNDOS:
+<script src="casos.js?v=10"></script> -->
+<script src="casos-office.js?v=10"></script>
+<script src="casos-dbz.js?v=10"></script>
+<script src="casos-hxh.js?v=10"></script>
+<script src="casos-simpson.js?v=10"></script>
+<script src="casos-lotr.js?v=10"></script>
+<script src="motor.js?v=10"></script>
+<script src="arte.js?v=10"></script>
 <script>
 (() => {
 const K = window.COARTADA, A = window.COARTADA_ARTE;
@@ -476,7 +530,10 @@ const LS = 'coartada.v3';
 let store = { casos: {}, mus: true, sfx: true };
 try { const g = JSON.parse(localStorage.getItem(LS)); if (g && g.casos) store = Object.assign(store, g); } catch (e) {}
 const persistir = () => { try { localStorage.setItem(LS, JSON.stringify(store)); } catch (e) {} };
-const nuevoEstado = () => ({ pos: {}, marcas: {}, notas: {}, pistaMax: 0, seg: 0, fin: false, vio: false, estrellas: 0 });
+// huella de cada caso: si un caso se rehace, el avance guardado de la versión anterior ya no sirve y se descarta
+const firma = (c) => { const s = JSON.stringify([c.rooms, c.objs, c.personajes]); let h = 7; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; };
+for (const c of K.CASOS) { const s = store.casos[c.id]; if (s && s.firma !== firma(c)) delete store.casos[c.id]; }
+const nuevoEstado = (c) => ({ firma: firma(c), pos: {}, marcas: {}, notas: {}, pistaMax: 0, seg: 0, fin: false, vio: false, estrellas: 0 });
 const tieneAvance = (s) => !!s && (Object.keys(s.pos).length > 0 || Object.keys(s.marcas).length > 0 || Object.keys(s.notas).length > 0 || s.seg > 8 || s.pistaMax > 0);
 
 /* ---------- Audio: dos canales independientes (música y efectos) ---------- */
@@ -544,6 +601,12 @@ const Musica = (() => {
     dbz: { bpm: 160,
       lead: 'E5:2 E5:2 G5:2 E5:2 B5:4 A5:2 G5:2 D5:2 D5:2 F#5:2 D5:2 A5:4 G5:2 F#5:2 C5:2 C5:2 E5:2 G5:2 C6:4 B5:2 A5:2 B5:2 A5:2 G5:2 F#5:2 B5:6 -:2',
       acordes: [['E2', 'E3', 'G3', 'B3'], ['D3', 'D4', 'F#4', 'A4'], ['C3', 'C4', 'E4', 'G4'], ['B2', 'B3', 'D#4', 'F#4']] },
+    hxh: { bpm: 132,
+      lead: 'D5:2 F5:2 A5:4 G5:2 F5:2 E5:4 C5:2 E5:2 G5:4 F5:2 E5:2 D5:4 D5:2 F5:2 A5:2 C6:2 B5:2 A5:2 G5:4 A5:2 G5:2 F5:2 E5:2 D5:6 -:2',
+      acordes: [['D3', 'D4', 'F4', 'A4'], ['C3', 'C4', 'E4', 'G4'], ['A#2', 'A#3', 'D4', 'F4'], ['A2', 'A3', 'C#4', 'E4']] },
+    lotr: { bpm: 72, suave: true,
+      lead: 'D5:2 E5:2 F#5:6 A5:2 F#5:4 E5:4 D5:8 F#5:2 A5:2 B5:6 D6:2 C#6:4 A5:4 F#5:6 G5:2 F#5:4 E5:4 D5:12 -:4',
+      acordes: [['D3', 'D4', 'F#4', 'A4'], ['G2', 'G3', 'B3', 'D4'], ['B2', 'B3', 'D4', 'F#4'], ['A2', 'A3', 'C#4', 'E4']] },
   };
   let actual = null, timer = null, paso = 0, tSig = 0, datos = null, nodo = null, el = null, pedido = 0;
   const archivos = {};          // tema -> HTMLAudioElement listo | false (no existe)
@@ -629,10 +692,12 @@ function portada() {
   $('#logo').innerHTML = [...'COARTADA'].map((l, i) => `<span style="--i:${i}">${l}</span>`).join('') +
     `<svg class="lupa" viewBox="0 0 40 40"><circle cx="16" cy="16" r="11" fill="rgba(75,227,255,.25)" stroke="#ffd23f" stroke-width="4"/><path d="M24 24l12 12" stroke="#ffd23f" stroke-width="6" stroke-linecap="round"/><path d="M10 13q3-5 8-4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
   const MUNDOS = [
-    { id: 'kanto', num: '01', sub: 'Pokémon · Primera generación', titulo: 'Expedientes Kanto', elenco: ['snorlax', 'pikachu', 'ash', 'meowth', 'jigglypuff', 'gengar', 'bulbasaur', 'misty'] },
-    { id: 'simpson', num: '02', sub: 'Los Simpson', titulo: 'Misterios de Springfield', elenco: ['homero', 'marge', 'bart', 'lisa', 'maggie', 'burns', 'krusty', 'moe'] },
-    { id: 'office', num: '03', sub: 'The Office', titulo: 'Archivos de Scranton', elenco: ['michael', 'dwight', 'jim', 'pam', 'angela', 'kevin', 'stanley', 'creed'] },
-    { id: 'dbz', num: '04', sub: 'Dragon Ball Z', titulo: 'Casos de los Guerreros Z', elenco: ['goku', 'vegeta', 'gohan', 'piccolo', 'krilin', 'bulma', 'freezer', 'buu'] },
+    // { id: 'kanto', num: '00', sub: 'Pokémon · Primera generación', titulo: 'Expedientes Kanto', elenco: ['snorlax', 'pikachu', 'ash', 'meowth', 'jigglypuff', 'gengar', 'bulbasaur', 'misty'] },  // oculto
+    { id: 'office', num: '01', sub: 'The Office', titulo: 'Archivos de Scranton', elenco: ['michael', 'dwight', 'jim', 'pam', 'angela', 'kevin', 'stanley', 'creed'] },
+    { id: 'dbz', num: '02', sub: 'Dragon Ball Z', titulo: 'Casos de los Guerreros Z', elenco: ['goku', 'vegeta', 'gohan', 'piccolo', 'krilin', 'bulma', 'freezer', 'buu'] },
+    { id: 'hxh', num: '03', sub: 'Hunter × Hunter', titulo: 'Licencia de Cazador', elenco: ['gon', 'killua', 'kurapika', 'leorio', 'hisoka', 'illumi', 'chrollo', 'meruem'] },
+    { id: 'simpson', num: '04', sub: 'Los Simpson', titulo: 'Misterios de Springfield', elenco: ['homero', 'marge', 'bart', 'lisa', 'maggie', 'burns', 'krusty', 'moe'] },
+    { id: 'lotr', num: '05', sub: 'El Señor de los Anillos', titulo: 'Crónicas de la Tierra Media', elenco: ['frodo', 'sam', 'gandalf', 'aragorn', 'legolas', 'gimli', 'gollum', 'saruman'] },
   ];
   const cont = $('#mundos'); cont.innerHTML = '';
   for (const m of MUNDOS) {
@@ -669,7 +734,7 @@ function abrirCaso(c) {
   $('#jTitulo').textContent = `CASO ${String(c.numero).padStart(2, '0')} · ${c.titulo}`;
   ini = K.iniciales(c); pistas = armarPistas(c);
   const previo = store.casos[c.id], habia = tieneAvance(previo) || (previo && previo.fin);
-  st = previo || (store.casos[c.id] = nuevoEstado());
+  st = previo || (store.casos[c.id] = nuevoEstado(c));
   sel = null; hist = [];
   construirTablero(); construirTestigos(); construirLeyenda();
   cerrarPista(); cerrarPicker(); pintar(); marcarEscena();
@@ -682,13 +747,6 @@ function construirTablero() {
   const t = $('#tablero'), n = caso.size; t.innerHTML = ''; celdas.length = 0;
   $('#coordC').innerHTML = [...Array(n)].map((_, i) => `<span>${K.LETRAS[i]}</span>`).join('');
   $('#coordF').innerHTML = [...Array(n)].map((_, i) => `<span>${i + 1}</span>`).join('');
-  // etiqueta de cada habitación: en su primera casilla sin objeto (para no tapar nada)
-  const eti = {};
-  for (const s of Object.keys(caso.salas)) {
-    let mejor = null, resp = null;
-    for (let i = 0; i < n * n && mejor == null; i++) { const r = Math.floor(i / n), c = i % n; if (caso.rooms[r][c] !== s) continue; if (resp == null) resp = i; if (!K.objAt(caso, r, c)) mejor = i; }
-    eti[mejor != null ? mejor : resp] = s;
-  }
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
     const sala = caso.rooms[r][c], o = K.objAt(caso, r, c);
     const d = el('div', `celda p-${caso.salas[sala].piso}` + (o && o.t === 'agua' ? ' agua' : '') + (K.bloqueada(caso, r, c) ? ' bloq' : ''));
@@ -699,7 +757,7 @@ function construirTablero() {
       const g = m ? 3 : 1; return 'inset ' + pat.replace('G0', g + 'px').replace('G1', -g + 'px') + ' ' + (m ? W : L);
     }).filter(Boolean).join(',');
     d.innerHTML = `<i class="fx"></i>${o && o.t !== 'agua' ? `<i class="obj">${A.objSvg(o.t)}</i>` : ''}<i class="vista"></i><i class="muros" style="box-shadow:${sh}"></i><i class="x">✕</i>` +
-      (eti[r * n + c] ? `<i class="eti">${caso.salas[sala].nombre}</i>` : '') + `<i class="notas"><b></b><b></b><b></b><b></b></i><i class="tok"></i>`;
+      `<i class="notas"><b></b><b></b><b></b><b></b></i><i class="tok"></i>`;
     d.title = `${K.celdaNombre(r, c)} · ${caso.salas[sala].nombre}` + (o ? ' · ' + K.OBJ_INFO[o.t].nombre : '');
     d.onclick = (e) => {
       const b = d.getBoundingClientRect(), sint = !e.clientX && !e.clientY;
@@ -707,6 +765,11 @@ function construirTablero() {
     };
     t.appendChild(d); celdas.push(d);
   }
+  // carteles con el nombre de cada habitación: capa aparte, sobre el tramo más ancho de la habitación (nunca se cortan)
+  const capa = el('div', 'etis');
+  for (const [s, e] of Object.entries(K.etiquetas(caso)))
+    capa.appendChild(el('i', 'eti', caso.salas[s].nombre)).style.cssText = `grid-row:${e.r + 1};grid-column:${e.c + 1} / span ${e.len};--l:${e.len};--w:${e.palabra};--t:${e.total}`;
+  t.appendChild(capa);
 }
 function construirTestigos() {
   const w = $('#testigos'); w.innerHTML = '';
@@ -816,7 +879,7 @@ function verSolucion() {
   cerrarPista(); pintar(); marcarEscena(); final(true);
 }
 function reiniciar() {
-  store.casos[caso.id] = st = nuevoEstado(); sel = null; hist = [];
+  store.casos[caso.id] = st = nuevoEstado(caso); sel = null; hist = [];
   cerrarPista(); cerrarPicker(); pintar(); marcarEscena(); reloj();
 }
 
@@ -828,7 +891,10 @@ function armarPistas(c) {
     const n = `<b>${pj(p.id).nombre}</b>`, donde = `<b>${K.celdaNombre(p.r, p.c)}</b> (${c.salas[K.roomAt(c, p.r, p.c)].nombre})`;
     if (p.id === vic) { out.push(`Ya ubicaste a todos los sospechosos: a ${n} le queda la única fila y columna libres, ${donde}. ¿Quién comparte esa habitación?`); continue; }
     out.push(`Fíjate en ${n}: con lo que ya se puede saber, le queda <b>una sola casilla</b> posible.`);
-    out.push(`${n} va en ${donde}.` + (p.razones.length ? `<ul>${p.razones.map((r) => `<li>${r[0].toUpperCase() + r.slice(1)}.</li>`).join('')}</ul>` : ''));
+    const corta = (l) => l.length <= 6 ? l.join(', ') : l.slice(0, 5).join(', ') + ` y ${l.length - 5} más`;
+    const intro = p.inicial.length <= 10 ? `Su coartada lo deja en <b>${p.inicial.join(', ')}</b>.` : `Su coartada lo deja en <b>${p.inicial.length} casillas</b>.`;
+    out.push(!p.descartes.length ? `${n} va en ${donde}: es la única casilla que cumple su coartada.` : `${n} va en ${donde}.<br><small>${intro} Por qué se descarta cada otra:</small>` +
+      `<ul>${p.descartes.map((d) => `<li><b>${corta(d.celdas)}</b>: ${d.razon}.</li>`).join('')}</ul>`);
   }
   return out;
 }
